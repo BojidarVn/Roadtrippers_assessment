@@ -1,0 +1,39 @@
+version: 2.1
+
+orbs:
+  maven: circleci/maven@1.4.1
+
+jobs:
+  ui-tests:
+    docker:
+      - image: cimg/openjdk:17.0-browsers
+    environment:
+      HEADLESS: "false"
+      BASE_URL: "https://roadtrippers.com/"
+
+    steps:
+      - checkout
+
+      - maven/with_cache:
+          steps:
+            - run:
+                name: Run Maven TestNG tests
+                command: |
+                  mvn -q test
+
+            - store_test_results:
+                path: target/surefire-reports
+
+            - store_artifacts:
+                path: target/surefire-reports
+                destination: surefire-reports
+
+            - store_artifacts:
+                path: target/allure-results
+                destination: allure-results
+
+workflows:
+  version: 2
+  pr-ui-tests:
+    jobs:
+      - ui-tests
