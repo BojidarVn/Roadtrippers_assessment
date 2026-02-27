@@ -6,7 +6,7 @@ orbs:
 jobs:
   ui-tests:
     docker:
-      - image: cimg/openjdk:17.0-browsers
+      - image: cimg/openjdk:21.0-browsers
     environment:
       HEADLESS: "false"
       BASE_URL: "https://roadtrippers.com/"
