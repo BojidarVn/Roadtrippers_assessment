@@ -17,18 +17,8 @@ public class TripPlanningTests extends BaseTest {
 
 
     @Test(description = "Create trip, add waypoint, attempt save")
-    public void happyPath_createTrip_addWaypoint() {
-        TripPlannerPage planner = new HomePage()
-                .open()
-                .acceptCookiesIfPresent()
-                .goToTripPlanner();
-
-        new LoginModal()
-                .loginIfPresent();
-
-        planner = planner
-                .goMyTripsSection()
-                .deleteTripIfExist()
+    public void createTrip_allowAddingWaypoint() {
+        TripPlannerPage planner = goToSecondPageWithoutTrip()
                 .openCreateTripModal()
                 .createTrip(ORIGIN, DESTINATION)
                 .launchTrip()
@@ -43,17 +33,8 @@ public class TripPlanningTests extends BaseTest {
     }
 
     @Test(description = "Error: cannot create trip without destination (modal stays open)")
-    public void error_createTripWithoutDestination_modalStaysOpen() {
-
-        TripPlannerPage planner = new HomePage()
-                .open()
-                .acceptCookiesIfPresent()
-                .goToTripPlanner();
-
-        new LoginModal().loginIfPresent();
-
-        CreateTripModal modal = planner.goMyTripsSection()
-                .deleteTripIfExist()
+    public void createTrip_showError_when_destinationMissing() {
+        CreateTripModal modal = goToSecondPageWithoutTrip()
                 .openCreateTripModal()
                 .setOriginOnly(ORIGIN)
                 .clickCreateTripExpectingFailure();
@@ -62,23 +43,14 @@ public class TripPlanningTests extends BaseTest {
     }
 
     @Test(description = "Edge: add multiple waypoints consecutively and verify they appear")
-    public void edge_addMultipleWaypoints_consecutively() {
+    public void addWaypoints_handleMultipleSequentialAdds() {
         List<String> waypoints = List.of(
                 WAYPOINT_1,
                 WAYPOINT_2,
                 WAYPOINT_3,
                 WAYPOINT_4);
 
-        TripPlannerPage planner = new HomePage()
-                .open()
-                .acceptCookiesIfPresent()
-                .goToTripPlanner();
-
-        new LoginModal().loginIfPresent();
-
-        planner = planner
-                .goMyTripsSection()
-                .deleteTripIfExist()
+        TripPlannerPage planner = goToSecondPageWithoutTrip()
                 .openCreateTripModal()
                 .createTrip(ORIGIN, DESTINATION)
                 .launchTrip()
@@ -98,5 +70,20 @@ public class TripPlanningTests extends BaseTest {
         for (String wp : waypoints) {
             Assert.assertTrue(actualPoints.contains(wp), "Missing waypoint: " + wp);
         }
+    }
+
+    private TripPlannerPage goToSecondPageWithoutTrip() {
+        TripPlannerPage planner = new HomePage()
+                .open()
+                .acceptCookiesIfPresent()
+                .goToTripPlanner();
+
+        new LoginModal().loginIfPresent();
+
+        planner = planner
+                .goMyTripsSection()
+                .deleteTripIfExist();
+
+        return planner;
     }
 }

@@ -2,8 +2,6 @@ package components;
 
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import pages.BasePage;
 import pages.TripPlannerPage;
 
@@ -15,38 +13,30 @@ public class CreateTripModal extends BasePage {
     private final By createTripButton = By
             .cssSelector("#create-trip-manually-modal-view .sticky-footer button.rt-button.primary-filled.large.default");
     private final By destinationError = By.cssSelector("#create-trip-manually-modal-view .destination-input.has-error");
-    private final By modalRoot = By.cssSelector("section#create-trip-manually-modal-view");
+    private final By firstItemFromDropdown = By.cssSelector("div.rt-autocomplete-list button.rt-autocomplete-list-item-view");
 
     @Step("Create trip: from '{0}' to '{1}'")
     public TripPlannerPage createTrip(String startingPoint, String destination) {
-        addingLocation(startingPoint, startingPointInput);
-        addingLocation(destination, destinationPointInput);
+        addingLocation(startingPointInput, startingPoint);
+        addingLocation(destinationPointInput, destination);
 
-        safeClick(createTripButton);
+        click(createTripButton);
 
-        waitInvisible(modalRoot, 7);
-
-        return at(TripPlannerPage.class).waitUntilReady();
+        return new TripPlannerPage().waitUntilReady();
     }
 
     @Step("Add waypoint: '{0}'")
     public TripPlannerPage addWaypoint(String waypoint) {
-        addingLocation(waypoint, waypointInput);
+        addingLocation(waypointInput, waypoint);
         waitWaypointVisible(waypoint);
 
-        return at(TripPlannerPage.class).waitUntilReady();
+        return new TripPlannerPage().waitUntilReady();
     }
 
     @Step("Select location '{0}' in field {1}")
-    private void addingLocation(String locationPoint, By locatorPoint) {
-        WebElement origin = waitClickable(locatorPoint);
-        origin.click();
-        origin.clear();
-        origin.sendKeys(locationPoint);
-
-        By firstItem = By.cssSelector("div.rt-autocomplete-list button.rt-autocomplete-list-item-view");
-
-        waitClickable(firstItem).click();
+    private void addingLocation(By locatorOfPoint, String locationPoint) {
+        clearAndType(locatorOfPoint, locationPoint);
+        click(firstItemFromDropdown);
     }
 
     @Step("Wait waypoint '{0}' to be visible in itinerary")
@@ -54,19 +44,19 @@ public class CreateTripModal extends BasePage {
         By locator = By.xpath(String
                 .format("//button[contains(@class,'waypoint-primary-label')][contains(normalize-space(.),'%s')]", name));
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isDisplayed();
+        waitVisible(locator).isDisplayed();
     }
 
-    @Step("Set origin only: '{0}'")
+    @Step("Set starting point only: '{0}'")
     public CreateTripModal setOriginOnly(String startingPoint) {
-        addingLocation(startingPoint, startingPointInput);
+        addingLocation(startingPointInput, startingPoint);
 
         return this;
     }
 
     @Step("Click 'Create Trip' expecting validation error")
     public CreateTripModal clickCreateTripExpectingFailure() {
-        safeClick(createTripButton);
+        click(createTripButton);
 
         return this;
     }

@@ -25,7 +25,7 @@ public class TripPlannerPage extends BasePage {
 
     @Step("Wait Trip Planner page to be ready")
     public TripPlannerPage waitUntilReady() {
-        waitClickable(pageReady);
+        waitVisible(pageReady);
 
         return this;
     }
@@ -33,9 +33,9 @@ public class TripPlannerPage extends BasePage {
     @Step("Delete existing trip if present")
     public TripPlannerPage deleteTripIfExist() {
         if (isDisplayed(deleteTripButton)) {
-            safeClick(deleteTripButton);
-            waitClickable(confirmDeletion).click();
-            waitClickable(secondConfirmDelete).click();
+            click(deleteTripButton);
+            click(confirmDeletion);
+            click(secondConfirmDelete);
         }
 
         return this;
@@ -43,36 +43,36 @@ public class TripPlannerPage extends BasePage {
 
     @Step("Open 'Create Trip' modal")
     public CreateTripModal openCreateTripModal() {
-        safeClick(createTripButton);
+        click(createTripButton);
 
         return new CreateTripModal();
     }
 
     @Step("Open 'My Trips' section")
     public TripPlannerPage goMyTripsSection() {
-        safeClick(myTripsButton);
+        click(myTripsButton);
 
         return this;
     }
 
     @Step("Launch trip")
     public TripPlannerPage launchTrip() {
-        waitClickable(launchTripButton).click();
+        click(launchTripButton);
+        waitUntilReady();
 
-        return waitUntilReady();
+        return this;
     }
 
     @Step("Open 'Add Waypoint' modal")
     public CreateTripModal clickAddWayPoint() {
-        waitClickable(addWayPointButton).click();
+        click(addWayPointButton);
 
-        return at(CreateTripModal.class);
+        return new CreateTripModal();
     }
 
     @Step("Close 'Explore' onboarding section")
     public TripPlannerPage closeExploreSection() {
         waitVisible(exploreSection);
-
         new Actions(driver)
                 .click()
                 .perform();

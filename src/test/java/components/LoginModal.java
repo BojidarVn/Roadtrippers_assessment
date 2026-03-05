@@ -7,7 +7,6 @@ import utils.Config;
 
 public class LoginModal extends BasePage {
 
-    private final By loginFormButton = bySweetchuckId("register-form__button--log-in-footer");
     private final By usernameField = bySweetchuckId("login-form__input--username-or-email-address");
     private final By passwordField = bySweetchuckId("login-form__input--password");
     private final By loginButton = bySweetchuckId("login-form__button--submit");
@@ -18,7 +17,7 @@ public class LoginModal extends BasePage {
     @Step("Login if modal is present")
     public void loginIfPresent() {
         if (isDisplayed(headerLoginButton)) {
-            waitClickable(headerLoginButton).click();
+            click(headerLoginButton);
         }
 
         closeIframePopupIfPresent(iframeFooter, footerCloseButton);
@@ -31,10 +30,7 @@ public class LoginModal extends BasePage {
 
         clearAndType(usernameField, user);
         clearAndType(passwordField, pass);
-
-        safeClick(loginButton);
-
-        waitInvisible(loginFormButton, 10);
+        click(loginButton);
 
         waitVisible(bySweetchuckId("header__image--user-profile-auth"));
     }

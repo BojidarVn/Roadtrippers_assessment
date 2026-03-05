@@ -16,39 +16,26 @@ public class BasePage {
 
     public BasePage() {
         this.driver = DriverManager.getDriver();
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(7));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     protected WebElement waitVisible(By locator) {
+
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 
     protected WebElement waitClickable(By locator) {
+
         return wait.until(ExpectedConditions.elementToBeClickable(locator));
     }
 
-    protected void waitInvisible(By locator, int seconds) {
-        try {
-            new WebDriverWait(driver, Duration.ofSeconds(seconds))
-                    .until(ExpectedConditions.invisibilityOfElementLocated(locator));
-        } catch (TimeoutException ignored) {
-        }
-    }
-
-    protected <T> T at(Class<T> pageClass) {
-        try {
-            return pageClass.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot create page: " + pageClass.getSimpleName(), e);
-        }
-    }
-
     protected By bySweetchuckId(String id) {
+
         return By.cssSelector("[data-sweetchuck-id='" + id + "']");
     }
 
-    @Step("Safe click on element: {0}")
-    protected void safeClick(By locator) {
+    @Step("Click on element: {0}")
+    protected void click(By locator) {
         int attempts = 0;
         while (attempts < 3) {
             try {
@@ -60,7 +47,7 @@ public class BasePage {
                 attempts++;
 
                 if (attempts == 3) {
-                    AllureUtils.attachScreenshot(driver, "SafeClick failed - " + locator);
+                    AllureUtils.attachScreenshot(driver, "Click failed - " + locator);
                     throw e;
                 }
             }
@@ -90,38 +77,20 @@ public class BasePage {
 
     }
 
-    @Step("Close promo popup if present")
-    protected void closePromoPopupIfPresent() {
-        By iframeLocator = By
-                .xpath("//div[contains(@class,'gist-background') and contains(@class,'gist-visible')]//iframe[contains(@src,'gist')]");
-        By closeBtn = By.xpath("//button[contains(@onclick,'message.dismiss')]");
-        waitVisible(iframeLocator);
-        try {
-            driver.switchTo().frame(driver
-                    .findElement(iframeLocator));
-
-            if (driver.findElements(closeBtn).size() > 0) {
-                driver.findElement(closeBtn).click();
-            }
-
-            driver.switchTo().defaultContent();
-        } catch (Exception ignored) {
-            driver.switchTo().defaultContent();
-        }
-    }
-
-    @Step("Close iframe popup if present (iframe: {0}, close: {1})")
+    @Step("Close iframe popup if present")
     protected void closeIframePopupIfPresent(By iframeLocator, By closeButtonInFrame) {
-        if (driver.findElements(iframeLocator).isEmpty()) return;
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(5))
+                    .until(ExpectedConditions.presenceOfElementLocated(iframeLocator));
+        } catch (TimeoutException ignored) {
+            return;
+        }
 
         try {
             wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(iframeLocator));
 
             if (!driver.findElements(closeButtonInFrame).isEmpty()) {
-                waitClickable(closeButtonInFrame).click();
-                driver.switchTo().defaultContent();
-                wait.until(ExpectedConditions.invisibilityOfElementLocated(iframeLocator));
-                return;
+                click(closeButtonInFrame);
             }
         } catch (TimeoutException ignored) {
         } finally {

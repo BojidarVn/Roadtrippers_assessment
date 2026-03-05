@@ -10,12 +10,15 @@ public class HomePage extends BasePage {
 
     private final By acceptCookiesBtn = By.xpath("//button[contains(.,'Accept')]");
     private final By headerYourTrip = By.cssSelector("#menu-item-85140 > a");
+    private final By iframeLocator = By
+            .xpath("//div[contains(@class,'gist-background') and contains(@class,'gist-visible')]//iframe");
+    private final By closeBtn = By.xpath("//button[contains(@onclick,'message.dismiss')]");
 
 
     @Step("Open Roadtrippers homepage")
     public HomePage open() {
         openUrl(URL);
-        closePromoPopupIfPresent();
+        closeIframePopupIfPresent(iframeLocator, closeBtn);
 
         return this;
     }
@@ -23,7 +26,7 @@ public class HomePage extends BasePage {
     @Step("Accept cookies if present")
     public HomePage acceptCookiesIfPresent() {
         if (isDisplayed(acceptCookiesBtn)) {
-            safeClick(acceptCookiesBtn);
+            click(acceptCookiesBtn);
         }
 
         return this;
@@ -31,9 +34,9 @@ public class HomePage extends BasePage {
 
     @Step("Go to Trip Planner")
     public TripPlannerPage goToTripPlanner() {
-        safeClick(headerYourTrip);
-        closePromoPopupIfPresent();
+        click(headerYourTrip);
+        closeIframePopupIfPresent(iframeLocator, closeBtn);
 
-        return at(TripPlannerPage.class);
+        return new TripPlannerPage();
     }
 }
